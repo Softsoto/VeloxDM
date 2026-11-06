@@ -1,22 +1,33 @@
-<p align="center"><img src="images/logo.png" alt="" width="96"></p>
-
-<h1 align="center">VeloxDM</h1>
+<p align="center"><img src="images/banner.png" alt="VeloxDM" width="100%"></p>
 
 <p align="center">Gestor de descargas con segmentación dinámica, colas, planificador, video, BitTorrent y extensión de navegador.</p>
 
-<p align="center"><a href="https://sotomontes.com/#veloxdm"><b>Ver en sotomontes.com</b></a></p>
+<p align="center"><a href="https://sotomontes.com/#veloxdm"><b>Ver en sotomontes.com</b></a> · <a href="#cómo-se-usa">Cómo se usa</a> · <a href="#cómo-funciona-por-dentro">Cómo funciona</a> · <a href="#novedades">Novedades</a></p>
 
-**Autor:** Sebastian Sotomontes · © 2026
-
-> Esta página es solo una presentación del proyecto. El código y los instaladores son privados.
+| Ficha técnica | |
+|---|---|
+| **Autor** | Sebastian Sotomontes |
+| **Tipo** | Gestor de descargas |
+| **Plataforma** | Windows 10 y 11 |
+| **Versión** | 0.4.1 |
+| **Estado** | Funcional |
+| **Stack** | C# · .NET 10 · WebView2 |
+| **Código** | Privado. Esta página es solo una presentación. |
 
 ---
-
-<p align="center"><img src="images/banner.png" alt="" width="100%"></p>
 
 ## Qué es
 
 VeloxDM es un gestor de descargas para Windows pensado para bajar archivos grandes sin perder el progreso. Divide cada descarga en varias conexiones que trabajan en paralelo y, cuando una termina, ayuda a la más lenta. También baja vídeo, torrents y paquetes de enlaces, y se integra con tu navegador para capturar las descargas sin que tengas que copiar nada.
+
+<p align="center"><img src="images/captura.jpg" alt="Captura de VeloxDM" width="100%"></p>
+
+## Novedades
+
+- Si un sitio exige una verificación, la descarga abre tu navegador para que la resuelvas tú.
+- Tabla de 1311 sitios de alojamiento y motores por plataforma.
+- Capturador de enlaces propio con complementos por sitio.
+- Barra de progreso de vídeo con el tamaño total desde el inicio.
 
 ## Cómo se usa
 
@@ -54,10 +65,53 @@ VeloxDM es un gestor de descargas para Windows pensado para bajar archivos grand
 - Si un sitio pide una verificación, VeloxDM abre la página para que la resuelvas tú; nada se salta.
 - Línea de comandos para usarlo desde scripts.
 
-## Tecnologías
+## Cómo funciona por dentro
 
-C# · .NET 10 · WebView2
+### Arquitectura
+
+```mermaid
+flowchart LR
+  EXT["Extensión MV3<br/>Chrome · Edge · Brave"] -->|"native messaging"| NH["NativeHost"]
+  NH -->|"tubería con nombre"| APP
+  subgraph APP["VeloxDM.exe"]
+    UI["Ventanas WinForms + WebView2<br/>www/"] <--> DM["DownloadManager<br/>colas · planificador · límites"]
+    DM --> HTTP["Downloader<br/>HTTP/HTTPS segmentado"]
+    DM --> FTP["FtpDownloader"]
+    DM --> HLS["HlsDownloader<br/>m3u8 · AES-128"]
+    DM --> YT["YtDlp<br/>YouTube y +1000 sitios"]
+    DM --> BT["TorrentDownloader<br/>MonoTorrent"]
+    DM --> RS["RemoteServer<br/>control desde el móvil"]
+  end
+```
+
+### Estructura
+
+| Ruta | Contenido |
+|---|---|
+| `src/VeloxDM/Core/Downloader.cs` | Motor HTTP(S): segmentación dinámica, archivo temporal disperso, reanudación |
+| `src/VeloxDM/Core/FtpDownloader.cs` | FTP con la misma segmentación (REST) |
+| `src/VeloxDM/Core/HlsDownloader.cs` | HLS: variantes, segmentos en paralelo, AES-128, remux a MP4 |
+| `src/VeloxDM/Core/YtDlp.cs` | Motor yt-dlp (sondeo de calidades, progreso, unión con ffmpeg) |
+| `src/VeloxDM/Core/TorrentDownloader.cs` | BitTorrent (MonoTorrent), límites compartidos con el resto |
+| `src/VeloxDM/Core/DownloadManager.cs` | Lista, colas, planificador, velocidad, acciones al terminar |
+| `src/VeloxDM/Core/SiteGrabber.cs` | Capturador de sitios |
+| `src/VeloxDM/Core/RemoteServer.cs` | Control remoto HTTP en la red local |
+| `src/VeloxDM/Core/LinkGrabber.cs` | Capturador de enlaces: análisis de texto y páginas, comprobación, paquetes |
+| `src/VeloxDM/Core/Hosters.cs`, `FilePlatforms.cs` | Complementos de sitios y motores de plataformas compartidas |
+| `src/VeloxDM/Core/Packages.cs` | Fin de paquete: descompresión, contraseñas y aviso |
+| `src/VeloxDM/Core/ClickNLoad.cs` | Receptor Click'n'Load |
+| `src/VeloxDM/Core/NativeHost.cs`, `Ipc.cs` | Host de native messaging y tubería con la app |
+| `src/VeloxDM/Ui/`, `src/VeloxDM/www/` | Ventanas WinForms + WebView2 y su interfaz HTML/JS |
+| `installer/VeloxDM.iss` | Instalador Inno Setup (por usuario, sin administrador) |
+
+### Cómo captura el navegador
+
+La extensión pausa la descarga en `downloads.onDeterminingFilename` y se la entrega a la app por native
+messaging con URL, cookies, referer, user-agent y cabeceras. Si la app no responde, reanuda la descarga en el
+navegador, así nunca se pierde un archivo.
 
 **Créditos:** usa yt-dlp, MonoTorrent y ffmpeg.
+
+---
 
 <sub>© 2026 Sebastian Sotomontes. Todos los derechos reservados.</sub>
