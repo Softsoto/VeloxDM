@@ -2,17 +2,18 @@
 
 <p align="center">Gestor de descargas con segmentación dinámica, colas, planificador, video, BitTorrent y extensión de navegador.</p>
 
-<p align="center"><a href="https://sotomontes.com/#veloxdm"><b>Ver en sotomontes.com</b></a> · <a href="#cómo-se-usa">Cómo se usa</a> · <a href="#cómo-funciona-por-dentro">Cómo funciona</a> · <a href="#novedades">Novedades</a></p>
+<p align="center"><a href="https://github.com/Softsoto/VeloxDM/releases/latest"><b>Descargar gratis</b></a> · <a href="https://sotomontes.com/#veloxdm">Ver en sotomontes.com</a> · <a href="#cómo-se-usa">Cómo se usa</a> · <a href="#cómo-funciona-por-dentro">Cómo funciona</a> · <a href="#novedades">Novedades</a></p>
 
 | Ficha técnica | |
 |---|---|
 | **Autor** | Sebastian Sotomontes |
 | **Tipo** | Gestor de descargas |
 | **Plataforma** | Windows 10 y 11 |
-| **Versión** | 0.4.1 |
+| **Versión** | 0.5.2 |
 | **Estado** | Funcional |
 | **Stack** | C# · .NET 10 · WebView2 |
-| **Código** | Privado. Esta página es solo una presentación. |
+| **Precio** | Gratis |
+| **Código** | Privado. El instalador se descarga desde Releases. |
 
 ---
 
